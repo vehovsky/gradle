@@ -21,6 +21,7 @@ import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.DirectoryBuildCacheFixture
 import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
 import org.gradle.test.fixtures.file.TestFile
+import org.gradle.util.ToBeImplemented
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
@@ -806,6 +807,67 @@ class CachedCustomTaskExecutionIntegrationTest extends AbstractIntegrationSpec i
         withBuildCache().run "test"
         then:
         noExceptionThrown()
+    }
+
+    @ToBeImplemented
+    @Issue("https://github.com/gradle/gradle/issues/4316")
+    def "can load from cache when output is changed"() {
+        def inputFile = file("input.txt") << "data"
+        def outputFile = file("build/output.txt")
+        buildFile << """
+            apply plugin: "base"
+
+            @CacheableTask
+            class CustomTask extends DefaultTask {
+                @InputFile
+                def inputFile = new File('input.txt')
+                
+                @OutputFile
+                def outputFile = new File('build/output.txt')
+                
+                @TaskAction
+                void execute(IncrementalTaskInputs inputs) {
+                    outputFile.text = inputFile.text
+                }
+            }
+            
+            task test(type: CustomTask)
+        """
+
+        when:
+        withBuildCache().run "test"
+        then:
+        executedAndNotSkipped ":test"
+        outputFile.text == "data"
+
+        when:
+        withBuildCache().run "clean", "test"
+        then:
+        skipped ":test"
+        outputFile.text == "data"
+
+        when:
+        outputFile.text = "changed"
+        withBuildCache().run "test"
+        then:
+        // FIXME Should be skipped
+        executedAndNotSkipped ":test"
+        outputFile.text == "data"
+
+        when:
+        inputFile.text = "new data"
+        outputFile.text = "changed"
+        withBuildCache().run "test"
+        then:
+        executedAndNotSkipped ":test"
+        outputFile.text == "new data"
+
+        when:
+        withBuildCache().run "clean", "test"
+        then:
+        // FIXME Should be skipped
+        executedAndNotSkipped ":test"
+        outputFile.text == "new data"
     }
 
     private static String defineProducerTask() {
