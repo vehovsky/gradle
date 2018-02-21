@@ -380,8 +380,8 @@ public class BuildOperationTrace implements Stoppable {
         }
 
         @Override
-        public void progress(BuildOperationDescriptor buildOperation, OperationProgressEvent progressEvent) {
-            new Entry(new SerializedOperationProgress(buildOperation, progressEvent), false).add();
+        public void progress(Object buildOperationId, OperationProgressEvent progressEvent) {
+            new Entry(new SerializedOperationProgress(buildOperationId, progressEvent), false).add();
         }
 
         @Override

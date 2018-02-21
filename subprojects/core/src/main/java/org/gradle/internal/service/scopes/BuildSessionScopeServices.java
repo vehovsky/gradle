@@ -71,6 +71,8 @@ import org.gradle.internal.hash.FileHasher;
 import org.gradle.internal.hash.HashCode;
 import org.gradle.internal.hash.StreamHasher;
 import org.gradle.internal.logging.LoggingManagerInternal;
+import org.gradle.internal.logging.buildoperation.DefaultLoggingBuildOperationProgressDetails;
+import org.gradle.internal.logging.buildoperation.LoggingBuildOperationProgressDetails;
 import org.gradle.internal.logging.events.OutputEvent;
 import org.gradle.internal.logging.events.OutputEventListener;
 import org.gradle.internal.logging.events.RenderableOutputEvent;
@@ -80,7 +82,6 @@ import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.operations.BuildOperationIdFactory;
 import org.gradle.internal.operations.DefaultBuildOperationQueueFactory;
 import org.gradle.internal.operations.trace.BuildOperationTrace;
-import org.gradle.internal.progress.BuildOperationDescriptor;
 import org.gradle.internal.progress.BuildOperationListener;
 import org.gradle.internal.progress.BuildOperationListenerManager;
 import org.gradle.internal.progress.DefaultBuildOperationExecutor;
@@ -174,14 +175,6 @@ public class BuildSessionScopeServices extends DefaultServiceRegistry {
         );
     }
 
-    public static class LoggingOutput {
-        public final String string;
-
-        public LoggingOutput(String string) {
-            this.string = string;
-        }
-    }
-
     private static class LoggingBuildOperationNotificationBridge implements Stoppable, OutputEventListener {
 
         private final LoggingManagerInternal loggingManagerInternal;
@@ -198,23 +191,17 @@ public class BuildSessionScopeServices extends DefaultServiceRegistry {
             if (event instanceof RenderableOutputEvent) {
                 RenderableOutputEvent renderableOutputEvent = (RenderableOutputEvent) event;
 
-                // FIXME This should be the descriptor for the current operation.
-                // This might require changing BuildOperationIdentifierRegistry to hold descriptors,
-                // or reworking the build operation listener API to not use descriptors here.
-                BuildOperationDescriptor ownerDescriptor = BuildOperationDescriptor.displayName("output")
-                    .build(
-                        renderableOutputEvent.getBuildOperationId(),
-                        null // luckily, not used on our code paths
-                    );
-
                 // FIXME Needs to be a carefully change controlled type describing the output.
                 // Also needs to convey the styling structure if styled.
-                Object details = new LoggingOutput(event.toString());
-
-                buildOperationListener.progress(
-                    ownerDescriptor,
-                    new OperationProgressEvent(renderableOutputEvent.getTimestamp(), details)
-                );
+                LoggingBuildOperationProgressDetails details = new DefaultLoggingBuildOperationProgressDetails(renderableOutputEvent.getCategory(),
+                    renderableOutputEvent.getLogLevel().name(),
+                    renderableOutputEvent.toString());
+                if (renderableOutputEvent.getBuildOperationId() != null) {
+                    buildOperationListener.progress(
+                        renderableOutputEvent.getBuildOperationId(),
+                        new OperationProgressEvent(renderableOutputEvent.getTimestamp(), details)
+                    );
+                }
             }
         }
 
