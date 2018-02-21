@@ -32,7 +32,7 @@ public class MSBuildVersionLocator {
     public File getMSBuildInstall(AvailableToolChains.InstalledToolChain toolChain) {
         if (toolChain instanceof AvailableToolChains.InstalledVisualCpp) {
             AvailableToolChains.InstalledVisualCpp visualCpp = (AvailableToolChains.InstalledVisualCpp) toolChain;
-            return new File("C:/Program Files (x86)/MSBuild/" + visualCpp.getVersion().getMajor() + ".0/Bin/MSBuild.exe");
+            return new File("C:/Program Files (x86)/MSBuild/" + visualCpp.getVersion().getMajor() + ".0/Bin/amd64/MSBuild.exe");
         }
 
         File vswhere = vswhereLocator.getVswhereInstall();
