@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.gradle.nativeplatform.fixtures.msvcpp;
+package org.gradle.ide.visualstudio.fixtures;
 
 import org.gradle.nativeplatform.fixtures.AvailableToolChains;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.version.VswhereVersionLocator;

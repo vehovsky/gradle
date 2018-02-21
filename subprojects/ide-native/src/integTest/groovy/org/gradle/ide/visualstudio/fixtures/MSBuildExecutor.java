@@ -124,6 +124,6 @@ public class MSBuildExecutor {
     }
 
     private TestFile findMSBuild() {
-        return new TestFile(VisualStudioLocatorTestFixture.getMSBuildLocator().getMSBuildInstall(toolChain));
+        return new TestFile(new MSBuildVersionLocator(VisualStudioLocatorTestFixture.getVswhereLocator()).getMSBuildInstall(toolChain));
     }
 }
