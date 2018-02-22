@@ -16,5 +16,10 @@
 
 package org.gradle.internal.logging.buildoperation;
 
-public interface LoggingBuildOperationProgressDetails {
+import org.gradle.internal.logging.events.StyledTextOutputEvent;
+
+import java.util.List;
+
+public interface StyledTextBuildOperationProgressDetails extends OutputBuildOperationProgressDetails{
+    List<StyledTextOutputEvent.Span> getSpans();
 }

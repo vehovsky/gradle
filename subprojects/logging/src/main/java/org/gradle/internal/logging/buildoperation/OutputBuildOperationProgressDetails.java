@@ -19,16 +19,7 @@ package org.gradle.internal.logging.buildoperation;
 import org.gradle.internal.scan.UsedByScanPlugin;
 
 @UsedByScanPlugin
-public class DefaultLoggingBuildOperationProgressDetails implements LoggingBuildOperationProgressDetails{
-    private final String category;
-    private final String loglevel;
-
-    public DefaultLoggingBuildOperationProgressDetails(String category,
-                                                       String loglevel,
-                                                       String message) {
-        this.category = category;
-        this.loglevel = loglevel;
-    }
-
-
+public interface OutputBuildOperationProgressDetails {
+    String getCategory();
+    String getLogLevel();
 }

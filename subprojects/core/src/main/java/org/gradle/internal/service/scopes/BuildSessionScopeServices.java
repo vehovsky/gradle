@@ -62,7 +62,6 @@ import org.gradle.internal.buildevents.BuildStartedTime;
 import org.gradle.internal.classpath.ClassPath;
 import org.gradle.internal.concurrent.ExecutorFactory;
 import org.gradle.internal.concurrent.ParallelismConfigurationManager;
-import org.gradle.internal.concurrent.Stoppable;
 import org.gradle.internal.event.ListenerManager;
 import org.gradle.internal.filewatch.PendingChangesManager;
 import org.gradle.internal.hash.ContentHasherFactory;
@@ -71,23 +70,17 @@ import org.gradle.internal.hash.FileHasher;
 import org.gradle.internal.hash.HashCode;
 import org.gradle.internal.hash.StreamHasher;
 import org.gradle.internal.logging.LoggingManagerInternal;
-import org.gradle.internal.logging.buildoperation.DefaultLoggingBuildOperationProgressDetails;
-import org.gradle.internal.logging.buildoperation.LoggingBuildOperationProgressDetails;
-import org.gradle.internal.logging.events.OperationIdentifier;
-import org.gradle.internal.logging.events.OutputEvent;
-import org.gradle.internal.logging.events.OutputEventListener;
-import org.gradle.internal.logging.events.RenderableOutputEvent;
 import org.gradle.internal.logging.progress.ProgressLoggerFactory;
 import org.gradle.internal.nativeplatform.filesystem.FileSystem;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.operations.BuildOperationIdFactory;
 import org.gradle.internal.operations.DefaultBuildOperationQueueFactory;
+import org.gradle.internal.operations.logging.LoggingBuildOperationNotificationBridge;
 import org.gradle.internal.operations.trace.BuildOperationTrace;
 import org.gradle.internal.progress.BuildOperationListener;
 import org.gradle.internal.progress.BuildOperationListenerManager;
 import org.gradle.internal.progress.DefaultBuildOperationExecutor;
 import org.gradle.internal.progress.DefaultBuildOperationListenerManager;
-import org.gradle.internal.progress.OperationProgressEvent;
 import org.gradle.internal.resources.DefaultResourceLockCoordinationService;
 import org.gradle.internal.resources.ProjectLeaseRegistry;
 import org.gradle.internal.resources.ResourceLockCoordinationService;
@@ -174,42 +167,6 @@ public class BuildSessionScopeServices extends DefaultServiceRegistry {
             parallelismConfigurationManager,
             buildOperationIdFactory
         );
-    }
-
-    private static class LoggingBuildOperationNotificationBridge implements Stoppable, OutputEventListener {
-
-        private final LoggingManagerInternal loggingManagerInternal;
-        private final BuildOperationListener buildOperationListener;
-
-        public LoggingBuildOperationNotificationBridge(LoggingManagerInternal loggingManagerInternal, BuildOperationListener buildOperationListener) {
-            this.loggingManagerInternal = loggingManagerInternal;
-            this.buildOperationListener = buildOperationListener;
-            loggingManagerInternal.addOutputEventListener(this);
-        }
-
-        @Override
-        public void onOutput(OutputEvent event) {
-            if (event instanceof RenderableOutputEvent) {
-                RenderableOutputEvent renderableOutputEvent = (RenderableOutputEvent) event;
-
-                // FIXME Needs to be a carefully change controlled type describing the output.
-                // Also needs to convey the styling structure if styled.
-                LoggingBuildOperationProgressDetails details = new DefaultLoggingBuildOperationProgressDetails(renderableOutputEvent.getCategory(),
-                    renderableOutputEvent.getLogLevel().name(),
-                    renderableOutputEvent.toString());
-                if (renderableOutputEvent.getBuildOperationId() != null) {
-                    buildOperationListener.progress(Long.valueOf(((OperationIdentifier)
-                            renderableOutputEvent.getBuildOperationId()).getId()),
-                        new OperationProgressEvent(renderableOutputEvent.getTimestamp(), details)
-                    );
-                }
-            }
-        }
-
-        @Override
-        public void stop() {
-            loggingManagerInternal.removeOutputEventListener(this);
-        }
     }
 
     LoggingBuildOperationNotificationBridge createLoggingBuildOperationNotificationBridge(LoggingManagerInternal loggingManagerInternal, ListenerManager listenerManager) {
