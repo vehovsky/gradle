@@ -73,6 +73,7 @@ import org.gradle.internal.hash.StreamHasher;
 import org.gradle.internal.logging.LoggingManagerInternal;
 import org.gradle.internal.logging.buildoperation.DefaultLoggingBuildOperationProgressDetails;
 import org.gradle.internal.logging.buildoperation.LoggingBuildOperationProgressDetails;
+import org.gradle.internal.logging.events.OperationIdentifier;
 import org.gradle.internal.logging.events.OutputEvent;
 import org.gradle.internal.logging.events.OutputEventListener;
 import org.gradle.internal.logging.events.RenderableOutputEvent;
@@ -197,8 +198,8 @@ public class BuildSessionScopeServices extends DefaultServiceRegistry {
                     renderableOutputEvent.getLogLevel().name(),
                     renderableOutputEvent.toString());
                 if (renderableOutputEvent.getBuildOperationId() != null) {
-                    buildOperationListener.progress(
-                        renderableOutputEvent.getBuildOperationId(),
+                    buildOperationListener.progress(Long.valueOf(((OperationIdentifier)
+                            renderableOutputEvent.getBuildOperationId()).getId()),
                         new OperationProgressEvent(renderableOutputEvent.getTimestamp(), details)
                     );
                 }
