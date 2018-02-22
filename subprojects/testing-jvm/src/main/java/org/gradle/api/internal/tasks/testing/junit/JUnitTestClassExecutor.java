@@ -107,7 +107,7 @@ public class JUnitTestClassExecutor implements Action<String> {
     }
 
     // https://github.com/gradle/gradle/issues/2319
-    private boolean isInnerClassInsideEnclosedRunner(Class<?> testClass) {
+    public static boolean isInnerClassInsideEnclosedRunner(Class<?> testClass) {
         if (testClass.getEnclosingClass() == null) {
             return false;
         }
