@@ -28,11 +28,11 @@ import org.gradle.internal.progress.OperationProgressEvent;
 public class LoggingBuildOperationNotificationBridge implements Stoppable, OutputEventListener {
 
     private final LoggingManagerInternal loggingManagerInternal;
-    private final BuildOperationListener buildOperationListener;
+    private final BuildOperationListener buildOperationListenerBroadcaster;
 
     public LoggingBuildOperationNotificationBridge(LoggingManagerInternal loggingManagerInternal, BuildOperationListener buildOperationListener) {
         this.loggingManagerInternal = loggingManagerInternal;
-        this.buildOperationListener = buildOperationListener;
+        this.buildOperationListenerBroadcaster = buildOperationListener;
         loggingManagerInternal.addOutputEventListener(this);
     }
 
@@ -45,7 +45,7 @@ public class LoggingBuildOperationNotificationBridge implements Stoppable, Outpu
             // Also needs to convey the styling structure if styled.
             Object details = OutputDetailsFactory.from(renderableOutputEvent);
             if (renderableOutputEvent.getBuildOperationId() != null) {
-                buildOperationListener.progress(Long.valueOf(((OperationIdentifier)
+                buildOperationListenerBroadcaster.progress(Long.valueOf(((OperationIdentifier)
                         renderableOutputEvent.getBuildOperationId()).getId()),
                     new OperationProgressEvent(renderableOutputEvent.getTimestamp(), details)
                 );
