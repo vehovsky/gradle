@@ -258,7 +258,7 @@ public class BuildOperationTrace implements Stoppable {
                     } else if (map.containsKey("time")) {
                         SerializedOperationProgress serialized = new SerializedOperationProgress(map);
                         PendingOperation pending = pendings.get(serialized.id);
-                        if(pending != null ){
+                        if (pending != null) {
                             // necessary as BuildCacheCompositeConfigurationIntegrationTest exposes problem with tracing composite settings compilation build operation not exposed
                             // in build operation trace
                             // assert pending != null;
