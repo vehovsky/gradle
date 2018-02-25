@@ -127,6 +127,11 @@ public class CachingModuleComponentRepository implements ModuleComponentReposito
     }
 
     @Override
+    public boolean isRemote() {
+        return delegate.isRemote();
+    }
+
+    @Override
     public Map<ComponentArtifactIdentifier, ResolvableArtifact> getArtifactCache() {
         throw new UnsupportedOperationException();
     }
